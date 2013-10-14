@@ -7,53 +7,57 @@
  */
 
 $searchResults = "";
+print "<!--\n";
+print "GET == '".print_r($_GET,true)."'\n";
+print "POST == '".print_r($_POST, true)."'\n";
+print "-->\n";
 
-if (isset($HTTP_GET_VARS) && !empty($HTTP_GET_VARS))
+if (isset($_GET['submit']))
 {
-  $wikiQuery = ParseForWiki($HTTP_GET_VARS);
-  $diigoQuery = ParseForDiigo($HTTP_GET_VARS);;
-  $evernoteQuery = ParseForEvernote($HTTP_GET_VARS);;
-  $ddgQuery = ParseForDuckDuckGo($HTTP_GET_VARS);;
+  $wikiQuery = ParseForWiki($_GET);
+  $diigoQuery = ParseForDiigo($_GET);;
+  $evernoteQuery = ParseForEvernote($_GET);;
+  $ddgQuery = ParseForDuckDuckGo($_GET);;
 
-  $searchResults = <<<HTML_RESULTS
+  $searchResults = <<<HTML
       <div id="searchresults">
           <hr/>
 
           <h3>KB Wiki</h3>
-          <iframe id="kbwiki" src="http://codemastershawn.com/search?$wikiQuery"></iframe>
+          <iframe id="kbwiki" src="http://codemastershawn.com/kb/index.php/Special:Search?$wikiQuery" class="searchresult"></iframe>
 
           <h3>Diigo</h3>
-          <iframe id="dbdiigo" src="http://diigo.com/DodgerWA/?$diigoQuery"></iframe>
+          <iframe id="dbdiigo" src="https://www.diigo.com/search?$diigoQuery" class="searchresult"></iframe>
 
           <h3>Evernote</h3>
-          <iframe id="kbevernote" src="http://evernote.com/$evernoteQuery"></iframe>
+          <iframe id="kbevernote" src="https://www.evernote.com/pub/dodgerwa/programming#b=f64edb5d-0d37-42ab-bf98-139200298101&$evernoteQuery" class="searchresult"></iframe>
 
           <h3>Duck Duck Go</h3>
-          <iframe id="duckduckgo" src="http://duckduckgo.com/$ddgQuery"></iframe>
+          <iframe id="duckduckgo" src="http://duckduckgo.com/$ddgQuery" class="searchresult"></iframe>
       </div>
-HTML_RESULTS;
+HTML;
 }
 
+$formAction = $_SERVER['PHP_SELF'];
 
 print <<<HTML
 <!DOCTYPE html>
 <html>
 <head>
     <title>Search my knowledge bases</title>
+    <link rel="stylesheet" type="text/css" href="mysearch.css"/>
 </head>
 <body>
     <h2>My KB Search</h2>
 
-    <form method="GET" action="">
-        <input id="query" type="text"/>
-        <input type="submit" value="Search"/>
+    <form method="GET" action="$formAction">
+        <input id="query" name="query" type="text"/>
+        <input type="submit" name="submit" value="Search"/>
     </form>
 $searchResults
 </body>
 </html>
 HTML;
-
-// TODO: Add logic to parse query for each search
 
 /**
  * @param $queryVars
@@ -62,7 +66,8 @@ HTML;
  */
 function ParseForWiki($queryVars)
 {
-  return "BADF00D";
+  $newQuery = ParseQuery($queryVars, "+");
+  return "search=$newQuery&go=Go";
 }
 
 /**
@@ -71,7 +76,8 @@ function ParseForWiki($queryVars)
  */
 function ParseForDiigo($queryVars)
 {
-  return "BADF00D";
+  $newQuery = ParseQuery($queryVars, "%20");
+  return "what=$newQuery";
 }
 
 /**
@@ -80,8 +86,11 @@ function ParseForDiigo($queryVars)
  */
 function ParseForEvernote($queryVars)
 {
-  return "BADF00D";
+  $newQuery = ParseQuery($queryVars, "%2520");
+  return "x=$newQuery";
 }
+
+// TODO: Add logic to parse query for generic search engine
 
 /**
  * @param $queryVars
@@ -90,4 +99,23 @@ function ParseForEvernote($queryVars)
 function ParseForDuckDuckGo($queryVars)
 {
   return "BADF00D";
+}
+
+/**
+ * @param $queryVars
+ * @param $separator
+ *
+ * @return string
+ */
+function ParseQuery($queryVars, $separator)
+{
+  $newQuery = "";
+  foreach ($queryVars as $k => $v)
+  {
+    if ($k != "SUBMIT")
+    {
+      $newQuery = empty($newQuery) ? $v : $newQuery.$separator.$v;
+    }
+  }
+  return $newQuery;
 }
