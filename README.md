@@ -34,3 +34,7 @@ For the immediate future, the roadmap I plan to follow is
 +	**v2.0** *Java Journey* (Java)
 	+ Rewrite back-end in Java
 	+ MVC (Swing)
+
+## Project management
+
+http://cmshawn.myjetbrains.com/youtrack/issues?q=project%3A+myKBsearch
